@@ -1,5 +1,7 @@
 import unittest
 from matrix import Matrix
+import random
+from typing import Callable
 
 class TestMatrixMethods(unittest.TestCase):
 
@@ -9,7 +11,6 @@ class TestMatrixMethods(unittest.TestCase):
 
         value = Matrix.Identity(3)
         for x in reversed(inv_diag_eigvec.diagonalize()):
-            print(x)
             value = x*value
 
         self.assertEqual(Matrix([[1,0,0],
@@ -17,14 +18,35 @@ class TestMatrixMethods(unittest.TestCase):
                                  [0,0,3]]), value)
 
     def test_add(self):
-        m1 = Matrix([[1,1],[1,1]])
-        m2 = Matrix([[2,2],[2,2]])
+        #verify that we add for SEVERAL different values
+        #accross several different types
+
+        for i in range(300):
+            self.verifyRandomAdd(lambda : random.random()*100)
+
+            self.verifyRandomAdd(lambda : random.randint(0, 100))
+
+            self.verifyRandomAdd(lambda : complex(
+                                            random.random()*100,
+                                            random.random()*100)
+                                  )
+
+    
+    """
+    generates two random matrix from the given function
+    and verifies that they add properly
+    """
+    def verify_random_add(self,generator : Callable[[],any])->None:
+        a,b,c,d = [generator() for i in range(4)]
+        e,f,g,h = [generator() for i in range(4)]
+
+        m1 = Matrix([[a,b],[c,d]])
+        m2 = Matrix([[e,f],[g,h]])
 
         self.assertEqual(m1+m2, m2+m1)
+        self.assertEqual(m1+m2, Matrix([[a+e,b+f],[c+g,d+h]]))
+        self.assertEqual(m2+m1, Matrix([[a+e,b+f],[c+g,d+h]]))
 
-        self.assertEqual(m1+m2, Matrix([[3,3],[3,3]]))
-
-        self.assertEqual(m2+m1, Matrix([[3,3],[3,3]]))
 
     def test_multiply(self):
         m1 = Matrix([[1,1],[2,1]])
