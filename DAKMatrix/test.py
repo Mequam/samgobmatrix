@@ -22,11 +22,11 @@ class TestMatrixMethods(unittest.TestCase):
         #accross several different types
 
         for i in range(300):
-            self.verifyRandomAdd(lambda : random.random()*100)
+            self.verify_random_add(lambda : random.random()*100)
 
-            self.verifyRandomAdd(lambda : random.randint(0, 100))
+            self.verify_random_add(lambda : random.randint(0, 100))
 
-            self.verifyRandomAdd(lambda : complex(
+            self.verify_random_add(lambda : complex(
                                             random.random()*100,
                                             random.random()*100)
                                   )
