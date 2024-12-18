@@ -1,12 +1,12 @@
-import Matrix
+from .matrix import Matrix
 import numpy as np
 
 import unittest
 
 def human_test()->None:
-    print(Matrix.Matrix([[123,2,3],[456,2,3]],dtype=np.complex64))
-    print(Matrix.Matrix(width=2,height=3,dtype=np.int32))
-    print(Matrix.Matrix(dtype=np.complex64,shape=(5,4)))
+    print(Matrix([[123,2,3],[456,2,3]],dtype=np.complex64))
+    print(Matrix(width=2,height=3,dtype=np.int32))
+    print(Matrix(dtype=np.complex64,shape=(5,4)))
 
     print("multiplication test")
     print("=====")
@@ -31,8 +31,8 @@ def human_test()->None:
 
             ]
 
-    m1 = Matrix.Matrix(parent_matrix)
-    m2 = Matrix.Matrix(cube_matrix)
+    m1 = Matrix(parent_matrix)
+    m2 = Matrix(cube_matrix)
 
     print(m1)
     print(m2)
@@ -61,16 +61,16 @@ def human_test()->None:
     print("m1.inv()*m1",m1.inv()*m1)
     
     try:
-        Matrix.Matrix([[ 0,0 ],[1,0]]).inv()
+        Matrix([[ 0,0 ],[1,0]]).inv()
     except ArithmeticError:
         print("arithmatic error")
 
 
-    print(Matrix.Matrix.Identity(2))
+    print(Matrix.Identity(2))
     
-    print(Matrix.Matrix.Diagonal([1,2,3,4,5]))
+    print(Matrix.Diagonal([1,2,3,4,5]))
 
-    print(Matrix.Matrix.Zero(shape=(10,10)))
+    print(Matrix.Zero(shape=(10,10)))
 
 
     unittest.main()

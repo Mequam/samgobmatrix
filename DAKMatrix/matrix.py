@@ -23,10 +23,20 @@ class Matrix:
         else:
             self._matrix = np.matrix(*args,**kwargs)
     
+    @property
+    def shape(self)->(float, float):
+        return self._matrix.shape
+    
     #NOTE: just use numpy :)
+    """returns an identity matrix of the given sizes"""
     @staticmethod
     def Identity(*args,**kwargs)->"Matrix":
         return Matrix(np.identity(*args,**kwargs))
+
+    """returns a 2d rotation matrix about theta angles"""
+    @staticmethod
+    def Rotation(theta : float)->"Matrix":
+        return Matrix.Identity(2).rotated(theta)
     
     @staticmethod
     def Zero(*args,**kwargs)->"Matrix":
@@ -59,8 +69,8 @@ class Matrix:
     
     def __mul__(self,other)->"Matrix":
         if isinstance((other), Matrix):
-            return Matrix(self._matrix * other.value)
-        return Matrix(self._matrix * other)
+            return Matrix(self._matrix @ other.value)
+        return Matrix(self._matrix @ other)
     def __rmul__(self,other)->"Matrix":
         if isinstance((other), Matrix):
             return other.__mul__(self)
@@ -83,12 +93,28 @@ class Matrix:
     def inv(self)->"Matrix":
 
         if abs(self.det()) < self.epsilon: #account for floating point errors
-            raise ArithmeticError("matrix has no inverse")
+            raise ArithmeticError("matrix has no singular inverse")
 
         return Matrix(np.linalg.inv(self.value))
 
     def transpose(self)->"Matrix":
         return Matrix(self._matrix.transpose())
+
+    """
+    return a copy of the current matrix, but rotated
+    by theta degrees in radians, only works on a 2d matrix
+    """
+    def rotated(self,theta)->"Matrix":
+        width, height = self.shape
+        
+        if not (width == 2 and height == 2 or width == 1 and height == 2):
+            raise ArithmeticError("only a 2x2 matrix or 2d vector (1x2) may be rotated")
+
+        return Matrix([
+                       [np.cos(theta),-np.sin(theta)],
+                       [np.sin(theta),np.cos(theta)]
+                       ]) * self
+
 
 
 
