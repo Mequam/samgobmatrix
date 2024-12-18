@@ -3,6 +3,19 @@ from matrix import Matrix
 
 class TestMatrixMethods(unittest.TestCase):
 
+    def test_diagonalization(self):
+        
+        inv_diag_eigvec = Matrix.Diagonal([1,2,3])
+
+        value = Matrix.Identity(3)
+        for x in reversed(inv_diag_eigvec.diagonalize()):
+            print(x)
+            value = x*value
+
+        self.assertEqual(Matrix([[1,0,0],
+                                 [0,2,0],
+                                 [0,0,3]]), value)
+
     def test_add(self):
         m1 = Matrix([[1,1],[1,1]])
         m2 = Matrix([[2,2],[2,2]])
@@ -29,12 +42,11 @@ class TestMatrixMethods(unittest.TestCase):
         self.assertEqual(-1*m1, -m1)
 
 
-    def test_split(self):
-        s = 'hello world'
-        self.assertEqual(s.split(), ['hello', 'world'])
-        # check that s.split fails when the separator is not a string
-        with self.assertRaises(TypeError):
-            s.split(2)
+        m22 = Matrix([[1,2],[3,4]])
+        m21 = Matrix([1,1])
+
+        self.assertRaises(ArithmeticError,  lambda : m22 * m21)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,7 +1,7 @@
 import numpy as np
 
 """
-Matrix class that wraps numpy arrays. Constructed with Dimensions or whatever ig.
+Matrix class that wraps numpy arrays.
 """
 class Matrix:
     def __init__(self,*args,**kwargs):
@@ -10,15 +10,20 @@ class Matrix:
         self.epsilon = 1.0e-6
 
         if "width" in kwargs or "height" in kwargs:
+            #custom width and height keyword arguments
             
             width = 1 if not "width" in kwargs else kwargs["width"]
             height = 1 if not "height" in kwargs else kwargs["height"]
 
+            #remove width and height so as not to burden numpy with
+            #our syntax
             kwargs.pop("width")
             kwargs.pop("height")
 
             self._matrix = np.matrix(np.ones(*args,shape=(width,height),**kwargs))
         elif "shape" in kwargs:
+            #the reason we don't just pass this down to the numpy args,
+            #is because we need to choose a default for our shaped object
             self._matrix = np.matrix(np.ones(*args,**kwargs))
         else:
             self._matrix = np.matrix(*args,**kwargs)
@@ -26,7 +31,25 @@ class Matrix:
     @property
     def shape(self)->(float, float):
         return self._matrix.shape
-    
+
+    def eig(self):
+        return np.linalg.eig(self._matrix)
+
+    """
+        returns the Eigen Decomposition of a matrix
+        
+        see
+            https://mathworld.wolfram.com/EigenDecomposition.html
+            https://en.wikipedia.org/wiki/Eigendecomposition_of_a_matrix
+            https://www.youtube.com/watch?v=PFDu9oVAE-g
+        for more info on the math as of Wed Dec 18 04:56:14 PM EST 2024
+    """
+    def diagonalize(self)->["Matrix"]:
+        eigenvalues,eigenvectors = self.eig()
+
+        return [Matrix(eigenvectors).inv(),Matrix.Diagonal(eigenvalues),Matrix(eigenvectors)]
+
+
     #NOTE: just use numpy :)
     """returns an identity matrix of the given sizes"""
     @staticmethod
@@ -69,8 +92,19 @@ class Matrix:
     
     def __mul__(self,other)->"Matrix":
         if isinstance((other), Matrix):
+            if self.shape[1] != other.shape[0]:
+                raise ArithmeticError("invalid matrix shapes")
             return Matrix(self._matrix @ other.value)
+
+        if isinstance(other, (int,float,complex)):
+            return Matrix(self._matrix * other)
+
+        #seperating this call off this way allows numpy to try one last
+        #attempt to multiply with their library,
+        #which allows us to do matrix vector multiplication this way
+        #among other things
         return Matrix(self._matrix @ other)
+
     def __rmul__(self,other)->"Matrix":
         if isinstance((other), Matrix):
             return other.__mul__(self)
