@@ -24,13 +24,13 @@ class Matrix:
             kwargs.pop("width")
             kwargs.pop("height")
 
-            self._matrix = np.matrix(np.ones(*args,shape=(width,height),**kwargs))
+            self._matrix = np.ones(*args,shape=(width,height),**kwargs)
         elif "shape" in kwargs:
             #the reason we don't just pass this down to the numpy args,
             #is because we need to choose a default for our shaped object
-            self._matrix = np.matrix(np.ones(*args,**kwargs))
+            self._matrix = np.ones(*args,**kwargs)
         else:
-            self._matrix = np.matrix(*args,**kwargs)
+            self._matrix = np.array(*args,**kwargs)
     
     @property
     def shape(self)->[float]:
@@ -56,7 +56,6 @@ class Matrix:
                 Matrix(eigenvectors)]
 
 
-    #NOTE: just use numpy :)
     """returns an identity matrix of the given sizes"""
     @staticmethod
     def Identity(*args,**kwargs)->"Matrix":
@@ -137,24 +136,31 @@ class Matrix:
         return Matrix(np.linalg.inv(self.value))
 
     def transpose(self)->"Matrix":
-        return Matrix(self._matrix.transpose())
+        return Matrix(np.transpose(self._matrix))
+
+    def is_vector(self)->bool:
+        return len(self.shape) == 1 or self.shape[1] == 1
+    
+    def is_vector_dimension_n(self,dimension : int)->bool:
+        """returns true if we are a vector of the given dimension"""
+        if not self.is_vector(): return False
+        return self.shape[0] == dimension
 
     """
     return a copy of the current matrix, but rotated
     by theta degrees in radians, only works on a 2d matrix
     """
     def rotated(self,theta)->"Matrix":
-        height, width = self.shape
         
-        if not (width == 2 and height == 2 or width == 1 and height == 2):
-            raise ArithmeticError("only a 2x2 matrix or 2d vector (1x2) may be rotated")
+        if not self.is_vector_dimension_n(2): #we don't need to check for dimensions if we are a vector
+            
+            #ensure that the matrix has compatible rotation dimensions
+            width,height = self.shape
+            if not ( width == 2 and height == 2 or width == 1 and height == 2):
+                raise ArithmeticError("only a 2x2 matrix or 2d vector (1x2) may be rotated")
+
 
         return Matrix([
                        [np.cos(theta),-np.sin(theta)],
                        [np.sin(theta),np.cos(theta)]
                        ]) * self
-
-
-
-
-

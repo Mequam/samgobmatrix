@@ -21,7 +21,6 @@ def fuzzy_test(test_amount,**kwargs):
         verbose = kwargs["verbose"] if "verbose" in kwargs else False
 
         def ret_val(*args,**kwargs):
-            
             if verbose:
                 print()
                 print(f"fuzzy testing  {f.__name__} {test_amount*len(number_generators)} ({test_amount}x{len(number_generators)}) times...")
@@ -107,17 +106,34 @@ class TestMatrixMethods(unittest.TestCase):
         self.assertEqual(m1*-1, -m1)
         self.assertEqual(-1*m1, -m1)
 
-    
+    def test_is_vector(self):
+        """test determines of a matrix is vector-like"""
+        v1 = Matrix([1,2,3,4])
+
+        v2 = Matrix([[1,2,3,4]]).transpose()
+
+        self.assertTrue(v1.is_vector())
+        self.assertTrue(v2.is_vector())
+
+    def test_vector_dimensions(self):
+        """test determines if we can verify vector dimensions"""
+        v1 = Matrix([1,2,3,4,5])
+        v2 = Matrix([1,2,3])
+        v3 = Matrix([[1,2]]).transpose()
+        v4 = Matrix([[1]]).transpose()
+
+
+        self.assertTrue(v1.is_vector_dimension_n(5))
+        self.assertTrue(v2.is_vector_dimension_n(3))
+        self.assertTrue(v3.is_vector_dimension_n(2))
+        self.assertTrue(v4.is_vector_dimension_n(1))
+
     @fuzzy_test(100)
     def test_invalid_multiplication(self,fuzz):
-        """
-        tests multiplication between two INVALID matricies
-        """
         a,b,c,d,e,f = fuzz(6)
         
-        #named based on the dimensions of the matricies
         m22 = Matrix([[a,b],[c,d]])
-        m21 = Matrix([e,f])
+        m21 = Matrix([[e,f]])
 
         self.assertRaises(ArithmeticError,  lambda : m22 * m21)
 
@@ -165,7 +181,7 @@ class TestMatrixMethods(unittest.TestCase):
                                                    [sin(theta),cos(theta)]]) * m1
                          )
 
-        v1 = Matrix([d for d in fuzz(2)]).transpose()
+        v1 = Matrix([d for d in fuzz(2)])
         self.assertEqual(v1.rotated(theta),Matrix([[cos(theta),-sin(theta)],
                                                    [sin(theta),cos(theta)]]) * v1
                          )
