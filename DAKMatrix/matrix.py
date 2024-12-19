@@ -1,5 +1,9 @@
 import numpy as np
 
+
+#nupmpy has a matrix class, note the redundency for requirements :)
+#and also the elegence of numpy matricies
+
 """
 Matrix class that wraps numpy arrays.
 """
@@ -29,7 +33,7 @@ class Matrix:
             self._matrix = np.matrix(*args,**kwargs)
     
     @property
-    def shape(self)->(float, float):
+    def shape(self)->[float]:
         return self._matrix.shape
 
     def eig(self):
@@ -47,7 +51,9 @@ class Matrix:
     def diagonalize(self)->["Matrix"]:
         eigenvalues,eigenvectors = self.eig()
 
-        return [Matrix(eigenvectors).inv(),Matrix.Diagonal(eigenvalues),Matrix(eigenvectors)]
+        return [Matrix(eigenvectors).inv(),
+                Matrix.Diagonal(eigenvalues),
+                Matrix(eigenvectors)]
 
 
     #NOTE: just use numpy :)
@@ -67,7 +73,7 @@ class Matrix:
 
 
     @staticmethod
-    def Diagonal(diag : [float])->"Matrix":
+    def Diagonal(diag : [float | complex | int])->"Matrix":
         #glorious numpy oneline, who needs for loops
         return Matrix(np.tile(diag,(len(diag),1))*np.identity(len(diag)))
 
@@ -77,8 +83,6 @@ class Matrix:
     def value(self)->np.matrix:
         return self._matrix
 
-    #nupmpy has a matrix class, note the redundency for requirements :)
-    #and also the elegence of numpy matricies
 
     def __eq__(self,other)->bool:
         if not isinstance(other, Matrix) or other.value.shape != self.value.shape:
@@ -121,12 +125,13 @@ class Matrix:
     def __sub__(self,other)->"Matrix":
         return self + -other
     
-    def det(self)->float:
-        return np.linalg.det(self.value)
+    def det(self)->float | complex:
+        val = (np.linalg.det(self.value))
+        return val
 
     def inv(self)->"Matrix":
 
-        if abs(self.det()) < self.epsilon: #account for floating point errors
+        if abs(self.det()) < self.epsilon: #account for floating point errors / complex det
             raise ArithmeticError("matrix has no singular inverse")
 
         return Matrix(np.linalg.inv(self.value))
@@ -139,7 +144,7 @@ class Matrix:
     by theta degrees in radians, only works on a 2d matrix
     """
     def rotated(self,theta)->"Matrix":
-        width, height = self.shape
+        height, width = self.shape
         
         if not (width == 2 and height == 2 or width == 1 and height == 2):
             raise ArithmeticError("only a 2x2 matrix or 2d vector (1x2) may be rotated")

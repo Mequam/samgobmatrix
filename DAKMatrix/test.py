@@ -1,5 +1,5 @@
 import unittest
-from matrix import Matrix
+from .matrix import Matrix
 from random import random,randint
 from math import pi,cos,sin
 
@@ -39,7 +39,7 @@ def fuzzy_test(test_amount,**kwargs):
     return decorator
 
 class TestMatrixMethods(unittest.TestCase):
-    @fuzzy_test(100,verbose=True)
+    @fuzzy_test(100)
     def test_diagonalization(self,fuzz):
         """
         determines if we are properly diagonalizing a matrix using a trivial case
@@ -56,7 +56,7 @@ class TestMatrixMethods(unittest.TestCase):
                                  [0,b,0],
                                  [0,0,c]]), value)
 
-    @fuzzy_test(100,verbose=True)
+    @fuzzy_test(100)
     def test_add(self,fuzz):
         a,b,c,d = fuzz(4)
         e,f,g,h = fuzz(4)
@@ -69,7 +69,7 @@ class TestMatrixMethods(unittest.TestCase):
         self.assertEqual(m1+m2, Matrix([[a+e,b+f],[c+g,d+h]]))
         self.assertEqual(m2+m1, Matrix([[a+e,b+f],[c+g,d+h]]))
 
-    @fuzzy_test(100,verbose=True)
+    @fuzzy_test(100)
     def test_multiply(self,fuzz):
         """
         tests basic multiplication between two VALID matricies
@@ -108,7 +108,7 @@ class TestMatrixMethods(unittest.TestCase):
         self.assertEqual(-1*m1, -m1)
 
     
-    @fuzzy_test(100,verbose=True)
+    @fuzzy_test(100)
     def test_invalid_multiplication(self,fuzz):
         """
         tests multiplication between two INVALID matricies
@@ -121,7 +121,7 @@ class TestMatrixMethods(unittest.TestCase):
 
         self.assertRaises(ArithmeticError,  lambda : m22 * m21)
 
-    @fuzzy_test(100,verbose=True)
+    @fuzzy_test(10)
     def test_transpose(self,fuzz):
         a,b,c,d,e,f = fuzz(6)
 
@@ -129,12 +129,12 @@ class TestMatrixMethods(unittest.TestCase):
                     [d,e,f]])
         self.assertEqual(m.transpose(), Matrix([[a,d],[b,e],[c,f]]))
 
-    @fuzzy_test(30,verbose=True)
+    @fuzzy_test(30)
     def test_negate(self,fuzz):
         a,b,c,d,e,f = fuzz(6)
         self.assertEqual(-Matrix([[a,b,c],[d,e,f]]), Matrix([[-a,-b,-c],[-d,-e,-f]]))
 
-    @fuzzy_test(100,verbose=True)
+    @fuzzy_test(100)
     def test_subtract(self,fuzz):
         m100,m110,m101,m111 = fuzz(4)
         m200,m210,m201,m211 = fuzz(4)
@@ -153,7 +153,7 @@ class TestMatrixMethods(unittest.TestCase):
         self.assertEqual(m2-m1, Matrix([[m200-m100,m210-m110],
                                         [m201-m101,m211-m111]]))
 
-    @fuzzy_test(100,verbose=True)
+    @fuzzy_test(100)
     def test_rotation(self,fuzz):
         m100,m110,m101,m111 = fuzz(4)
         theta = random()*4*pi - 2*pi #ranges from -2pi <> 2pi
@@ -165,10 +165,20 @@ class TestMatrixMethods(unittest.TestCase):
                                                    [sin(theta),cos(theta)]]) * m1
                          )
 
+        v1 = Matrix([d for d in fuzz(2)]).transpose()
+        self.assertEqual(v1.rotated(theta),Matrix([[cos(theta),-sin(theta)],
+                                                   [sin(theta),cos(theta)]]) * v1
+                         )
 
+    @fuzzy_test(100)
+    def test_determinant(self,fuzz):
+        m100,m110,m101,m111 = fuzz(4)
 
+        m1 = Matrix([[m100,m110],
+                     [m101,m111]])
 
-
+        our_determinant = m100*m111-m101*m110
+        self.assertAlmostEqual(m1.det(), our_determinant ,5)
 
 
 if __name__ == '__main__':
