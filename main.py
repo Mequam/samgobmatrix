@@ -1,12 +1,14 @@
 from DAKMatrix import Matrix
 from math import pi
+from samgob import DiceSetParser
+from samgob.iterators.control_flow_iterator import ControlFlowIterator
 
+parser : DiceSetParser = DiceSetParser()
 
-print(Matrix.Rotation(pi/2) * Matrix([1,0]).transpose())
-
-value = Matrix.Identity(3)
-for x in reversed(Matrix.Diagonal([1,2,3]).diagonalize()):
-    print(x)
-    value = x*value
-
-print(value)
+while True:
+    ui = input('> ')
+    print(ui)
+    result = parser.compile_langauge(ControlFlowIterator(
+        iter(ui.split(" "))
+        ))
+    print(result)
