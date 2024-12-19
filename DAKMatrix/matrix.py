@@ -119,7 +119,7 @@ class Matrix:
         return Matrix(self._matrix + other)
 
     def __sub__(self,other)->"Matrix":
-        return other+-self
+        return self + -other
     
     def det(self)->float:
         return np.linalg.det(self.value)

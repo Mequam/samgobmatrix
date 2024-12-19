@@ -1,20 +1,21 @@
 import unittest
 from matrix import Matrix
-import random
-from typing import Callable
+from random import random,randint
+from math import pi,cos,sin
 
 #array of functions that the module uses to create values for testing matricies
 number_generators = [
-          lambda : random.random()*100,
-          lambda : random.randint(0, 100),
-          lambda : complex(random.random()*100,random.random()*100)
+          lambda : random()*100,
+          lambda : randint(0, 100),
+          lambda : complex(random()*100,random()*100)
           ]
 
-"""
-repeats the decorated function test amount times accross each of the different number generators
-for testing functions over several different classes and many random values
-"""
 def fuzzy_test(test_amount,**kwargs):
+    """
+    repeats the decorated function test amount times accross each of the different number generators
+    for testing functions over several different classes and many random values
+    """
+
     def decorator(f):
 
         verbose = kwargs["verbose"] if "verbose" in kwargs else False
@@ -27,8 +28,8 @@ def fuzzy_test(test_amount,**kwargs):
 
             for i in range(test_amount):
                 for gen in number_generators:
-                    creator = lambda x : (gen() for i in range(x))
-                    f(*args,creator,**kwargs)
+                    fuzz = lambda x : (gen() for i in range(x))
+                    f(*args,fuzz,**kwargs)
             
             if verbose:
                 print("done!")
@@ -39,8 +40,11 @@ def fuzzy_test(test_amount,**kwargs):
 
 class TestMatrixMethods(unittest.TestCase):
     @fuzzy_test(100,verbose=True)
-    def test_diagonalization(self,gen):
-        a,b,c = gen(3)
+    def test_diagonalization(self,fuzz):
+        """
+        determines if we are properly diagonalizing a matrix using a trivial case
+        """
+        a,b,c = fuzz(3)
 
         inv_diag_eigvec = Matrix.Diagonal([a,b,c])
 
@@ -53,9 +57,9 @@ class TestMatrixMethods(unittest.TestCase):
                                  [0,0,c]]), value)
 
     @fuzzy_test(100,verbose=True)
-    def test_add(self,gen):
-        a,b,c,d = gen(4)
-        e,f,g,h = gen(4)
+    def test_add(self,fuzz):
+        a,b,c,d = fuzz(4)
+        e,f,g,h = fuzz(4)
         
 
         m1 = Matrix([[a,b],[c,d]])
@@ -65,26 +69,106 @@ class TestMatrixMethods(unittest.TestCase):
         self.assertEqual(m1+m2, Matrix([[a+e,b+f],[c+g,d+h]]))
         self.assertEqual(m2+m1, Matrix([[a+e,b+f],[c+g,d+h]]))
 
-    def test_multiply(self):
-        m1 = Matrix([[1,1],[2,1]])
-        m2 = Matrix([[1,2],[2,2]])
+    @fuzzy_test(100,verbose=True)
+    def test_multiply(self,fuzz):
+        """
+        tests basic multiplication between two VALID matricies
+        """
 
-        self.assertEqual(m1*m2,Matrix([[3,4],[4,6]]))
-        self.assertEqual(m2*m1, Matrix([[5,3],[6,4]]))
+        """
+        matrix naming convention for convinence
+        with the first  number (X bellow) dictating the matrix that the value
+        is assigned to
 
-        self.assertEqual(2*m1, Matrix([[2,2],[4,2]]))
-        self.assertEqual(m1*2, Matrix([[2,2],[4,2]]))
+        X00 X10
+        X01 X11
+        """
+        m100,m110,m101,m111 = fuzz(4)
+        m200,m210,m201,m211 = fuzz(4)
+
+        m1 = Matrix([[m100,m110],
+                     [m101,m111]])
+
+        m2 = Matrix([[m200,m210],
+                     [m201,m211]])
+
+        self.assertEqual(m1*m2,Matrix([
+                                        [m100*m200+m110*m201,m210*m100+m211*m110]
+                                       ,[m101*m200+m111*m201,m210*m101+m211*m111]
+                                       ]))
+        self.assertEqual(m2*m1, Matrix([[m100*m200+m101*m210,m110*m200+m111*m210],
+                                        [m100*m201+m101*m211,m110*m201+m111*m211]]))
+
+        self.assertEqual(2*m1, Matrix([[2*m100,2*m110],[2*m101,2*m111]]))
+        self.assertEqual(m1*2, Matrix([[2*m100,2*m110],[2*m101,2*m111]]))
         self.assertEqual(m1*2, 2*m1)
 
         self.assertEqual(m1*-1, -1*m1)
         self.assertEqual(m1*-1, -m1)
         self.assertEqual(-1*m1, -m1)
 
-
-        m22 = Matrix([[1,2],[3,4]])
-        m21 = Matrix([1,1])
+    
+    @fuzzy_test(100,verbose=True)
+    def test_invalid_multiplication(self,fuzz):
+        """
+        tests multiplication between two INVALID matricies
+        """
+        a,b,c,d,e,f = fuzz(6)
+        
+        #named based on the dimensions of the matricies
+        m22 = Matrix([[a,b],[c,d]])
+        m21 = Matrix([e,f])
 
         self.assertRaises(ArithmeticError,  lambda : m22 * m21)
+
+    @fuzzy_test(100,verbose=True)
+    def test_transpose(self,fuzz):
+        a,b,c,d,e,f = fuzz(6)
+
+        m = Matrix([[a,b,c],
+                    [d,e,f]])
+        self.assertEqual(m.transpose(), Matrix([[a,d],[b,e],[c,f]]))
+
+    @fuzzy_test(30,verbose=True)
+    def test_negate(self,fuzz):
+        a,b,c,d,e,f = fuzz(6)
+        self.assertEqual(-Matrix([[a,b,c],[d,e,f]]), Matrix([[-a,-b,-c],[-d,-e,-f]]))
+
+    @fuzzy_test(100,verbose=True)
+    def test_subtract(self,fuzz):
+        m100,m110,m101,m111 = fuzz(4)
+        m200,m210,m201,m211 = fuzz(4)
+
+        m1 = Matrix([[m100,m110],
+                     [m101,m111]])
+
+        m2 = Matrix([[m200,m210],
+                     [m201,m211]])
+
+
+        self.assertEqual(m1-m2, Matrix([[m100-m200,m110-m210],
+                                        [m101-m201,m111-m211]]))
+
+
+        self.assertEqual(m2-m1, Matrix([[m200-m100,m210-m110],
+                                        [m201-m101,m211-m111]]))
+
+    @fuzzy_test(100,verbose=True)
+    def test_rotation(self,fuzz):
+        m100,m110,m101,m111 = fuzz(4)
+        theta = random()*4*pi - 2*pi #ranges from -2pi <> 2pi
+
+        m1 = Matrix([[m100,m110],
+                     [m101,m111]])
+
+        self.assertEqual(m1.rotated(theta),Matrix([[cos(theta),-sin(theta)],
+                                                   [sin(theta),cos(theta)]]) * m1
+                         )
+
+
+
+
+
 
 
 if __name__ == '__main__':
