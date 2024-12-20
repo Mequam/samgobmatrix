@@ -31,10 +31,15 @@ class Matrix:
             self._matrix = np.ones(*args,**kwargs)
         else:
             self._matrix = np.array(*args,**kwargs)
-    
+
     @property
     def shape(self)->[float]:
         return self._matrix.shape
+    
+    #returns a string that samgob can parse out
+    #to a matrix
+    def samgob_string(self)->str:
+        return ':'.join([','.join([str(round(v,2)) for v in row]) for row in self.value])
 
     def eig(self):
         return np.linalg.eig(self._matrix)
