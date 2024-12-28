@@ -11,6 +11,7 @@ from prompt_toolkit.styles import Style
 style = Style.from_dict({
     # User input (default text).
     '':          '#ff6600',
+    'placeholder': '#00CCCC',
 
     # Prompt.
     'prompt': '#884444',
@@ -27,6 +28,7 @@ completed_style = Style.from_dict({
 })
 
 prompt = [("class:prompt",'()> ')]
+placeholder = [('class:placeholder','command or query')]
 
 
 bindings = KeyBindings()
@@ -42,17 +44,19 @@ def _(event):
 
 try:
     while True:
-        output = prompt_session.prompt(prompt,
+        user_input = prompt_session.prompt(prompt,
                                        style=style,
                                        bottom_toolbar="testing123",
-                                       placeholder="command or query")
+                                       placeholder=placeholder)
         
         #gray out user inputs before computing outputs
         #ansi command to move the cursor up a line
         sys.stdout.write("\033[A")
         sys.stdout.flush()
+        if (user_input == ""): 
+            user_input = " " * len(placeholder[0][1]) #zero out placeholder input
 
-        print_formatted_text(prompt[0][1] + output,style=completed_style)
+        print_formatted_text(prompt[0][1] + user_input,style=completed_style)
 
 except KeyboardInterrupt:
     print("goodbye!")
