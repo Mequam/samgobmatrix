@@ -12,14 +12,14 @@ class SamgobSubCommand(Command):
 
         @self.function_decorator(default=True)
         def parse(*args : str):
-            try:
+            #try:
                 ret_val = self.dice_parser.compile_langauge(ControlFlowIterator(
                     iter(args)
                     )
                 )
                 print(ret_val)
-            except ParseError:
-                print(f"invalid syntax detected with query {args}")
+            #except ParseError:
+            #    print(f"invalid syntax detected with query {args}")
             
         
         @self.function_decorator()
