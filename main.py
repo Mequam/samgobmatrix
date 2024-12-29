@@ -8,6 +8,9 @@ from prompt_toolkit import prompt,PromptSession,print_formatted_text
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.styles import Style
 
+from DAKCommand import Command
+from subcommands.samgob import SamgobSubCommand
+
 style = Style.from_dict({
     # User input (default text).
     '':          '#ff6600',
@@ -42,6 +45,11 @@ def _(event):
 def _(event):
     print("you pressed the down key")
 
+
+
+commandTree : Command = Command("root")
+commandTree.add_sub_command(SamgobSubCommand("samgob"),default=True)
+
 try:
     while True:
         user_input = prompt_session.prompt(prompt,
@@ -57,6 +65,9 @@ try:
             user_input = " " * len(placeholder[0][1]) #zero out placeholder input
 
         print_formatted_text(prompt[0][1] + user_input,style=completed_style)
+        
+        commandTree.parse(user_input.split(" "))
+
 
 except KeyboardInterrupt:
     print("goodbye!")

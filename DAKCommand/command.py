@@ -29,6 +29,8 @@ class Command:
         """
         self.sub_commands : dict = {}
     
+
+    
     def is_sub_command(self)->bool:
         """
         returns true if we are a sub command
@@ -79,7 +81,6 @@ class Command:
 
     def parse(self,args : [str])->None:
         if self.is_sub_command():
-            
             #actually do work
             self.call_from_namespace(self.runner, self.parser.parse_args(args))
 
@@ -91,14 +92,16 @@ class Command:
             if args[0] in self.sub_commands:
                 self.sub_commands[args[0]].parse(args[1:])
             elif self.default_cmd:
-                self.default_cmd(args)
+                self.default_cmd.parse(args)
         else:
-            self.default_cmd(args)
+            self.default_cmd.parse(args)
 
 
     #convinience function to add a sub command to the tree
-    def add_sub_command(self,sub_command : 'Command')->None:
+    def add_sub_command(self,sub_command : 'Command',*,default = False)->None:
         self.sub_commands[sub_command.name] = sub_command
+        if default:
+            self.default_cmd = sub_command
 
     def function_decorator(self,*,name : str = None, default : bool = False,dashList : bool = False):
         """
@@ -106,12 +109,8 @@ class Command:
         """
 
         def decorator(f):
-            cmd = Command.from_function(f)
-
-            if default:
-                self.default_cmd = cmd
-            else:
-                self.add_sub_command(cmd)
+            self.add_sub_command(Command.from_function(f),
+                                 default=default)
 
             return f
 
@@ -124,7 +123,6 @@ class Command:
         """
         spec = inspect.getfullargspec(f)
 
-        
         ret_val = Command(name = name if name else f.__name__ , **kwargs)
 
 
@@ -141,8 +139,6 @@ class Command:
 
 #standard args
         for arg in non_default_arguments:
-            if arg in spec.annotations:
-                print(spec.annotations[arg])
             ret_val.parser.add_argument(
                                         arg,
                                         type=spec.annotations[arg] if arg in spec.annotations else None
@@ -167,11 +163,11 @@ class Command:
             varname = spec.varargs
             if dashList:
                 varname = f'--{spec.varargs}'
-
             ret_val.parser.add_argument(varname,
                                         type=spec.annotations[spec.varargs] if spec.varargs in spec.annotations else list,
                                         nargs="*"
                                         )
+
 
         ret_val.runner = f
         return ret_val
