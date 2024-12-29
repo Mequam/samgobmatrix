@@ -4,11 +4,11 @@ from samgob.iterators.control_flow_iterator import ControlFlowIterator
 from DAKCommand import Command
 
 class SamgobSubCommand(Command):
-    def __init__(self,name,**kwargs):
+    def __init__(self,name,dice_parser,**kwargs):
         super().__init__(name,**kwargs)
 
 
-        self.dice_parser = DiceSetParser()
+        self.dice_parser = dice_parser
 
         @self.function_decorator(default=True)
         def parse(*args : str):
@@ -24,4 +24,8 @@ class SamgobSubCommand(Command):
         
         @self.function_decorator()
         def variables():
-            print(self.dice_parser.variable_map)
+            print("variables")
+            print(len("variables")*'-')
+            for key in self.dice_parser.variable_map:
+                print((key,str(self.dice_parser.variable_map[key])))
+            print(len("variables")*'-')

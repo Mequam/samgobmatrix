@@ -10,6 +10,7 @@ from prompt_toolkit.styles import Style
 
 from DAKCommand import Command
 from subcommands.samgob import SamgobSubCommand
+from subcommands.save import SaveSubCommand
 
 style = Style.from_dict({
     # User input (default text).
@@ -46,9 +47,20 @@ def _(event):
     print("you pressed the down key")
 
 
-
+dice_parser = DiceSetParser()
 commandTree : Command = Command("root")
-commandTree.add_sub_command(SamgobSubCommand("samgob"),default=True)
+commandTree.add_sub_command(SamgobSubCommand("samgob",dice_parser=dice_parser),default=True)
+commandTree.add_sub_command(SaveSubCommand("memory", dice_parser=dice_parser))
+
+
+#add an exit command to leave the tree
+@commandTree.function_decorator()
+def exit():
+    print("goodbye!")
+    sys.exit(1)
+
+
+
 
 try:
     while True:
@@ -70,8 +82,7 @@ try:
 
 
 except KeyboardInterrupt:
-    print("goodbye!")
-    sys.exit(1)
+    exit()
 
 
 
