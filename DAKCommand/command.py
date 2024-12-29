@@ -50,15 +50,20 @@ class Command:
     def show_help(self)->None:
         print(self.help_str())
     
-    def parse_help_information(self,args : [str])->None:
-        """simple routine to parse out and display help pages"""
+    def parse_help_information(self,args : [str])->bool:
+        """
+        simple routine to parse out and display help pages
+        returns true if it ran for use in further processing
+        """
         cmd = args[0]
 
         if cmd == 'help':
-            if len(args) >= 2 and cmd[1] in self.sub_commands:
-                self.sub_commands[cmd[1]].parse_help_information(['help'] + args[2:])
+            if len(args) >= 2 and args[1] in self.sub_commands:
+                self.sub_commands[args[1]].parse_help_information(['help'] + args[2:])
             else:
                 self.show_help()
+            return True
+        return False
     
 
     def call_from_namespace(self,f,namespace)->None:
@@ -86,9 +91,12 @@ class Command:
 
             return
 
-        if len(args) > 0:
-            self.parse_help_information(args)
+        if self.parse_help_information(args):
+            #if we parse out help information we do no further
+            #processing
+            return
 
+        if len(args) > 0:
             if args[0] in self.sub_commands:
                 self.sub_commands[args[0]].parse(args[1:])
             elif self.default_cmd:
