@@ -111,7 +111,7 @@ class Command:
         if default:
             self.default_cmd = sub_command
 
-    def function_decorator(self,*,name : str = None, default : bool = False,dashList : bool = False):
+    def function_command(self,*,name : str = None, default : bool = False,dashList : bool = False):
         """
         decorator used to create and add a command as a sub command to this one
         """

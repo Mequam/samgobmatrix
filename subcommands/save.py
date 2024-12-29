@@ -14,7 +14,7 @@ class SaveSubCommand(Command):
 
         self.dice_parser : DiceSetParser = dice_parser
 
-        @self.function_decorator()
+        @self.function_command()
         def save(varname : str,*variablelist : str,outnames : list,filepath = "saved_variables.txt"):
             """
             append one or more variables to a file
@@ -26,7 +26,7 @@ class SaveSubCommand(Command):
                 for variable_name in (varname,) + variablelist:
                     self.save_variable(appendFile,variable_name,variable_name)
 
-        @self.function_decorator()
+        @self.function_command()
         def load(varname : str = '*',*,filepath = 'saved_variables.txt'):
             try:
                 with open(filepath,'r') as readFile:
@@ -36,7 +36,7 @@ class SaveSubCommand(Command):
                 print(f'"{filepath}" does not exist, try saving variables first')
 
         
-        @self.function_decorator(default=True)
+        @self.function_command(default=True)
         def show(*,filepath = "saved_variables.txt"):
             try:
                 with open(filepath,'r') as readFile:

@@ -10,7 +10,7 @@ class SamgobSubCommand(Command):
 
         self.dice_parser = dice_parser
 
-        @self.function_decorator(default=True)
+        @self.function_command(default=True)
         def parse(*args : str):
             #try:
                 ret_val = self.dice_parser.compile_langauge(ControlFlowIterator(
@@ -22,7 +22,7 @@ class SamgobSubCommand(Command):
             #    print(f"invalid syntax detected with query {args}")
             
         
-        @self.function_decorator()
+        @self.function_command()
         def variables():
             print("variables")
             print(len("variables")*'-')

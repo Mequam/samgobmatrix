@@ -11,6 +11,7 @@ from prompt_toolkit.styles import Style
 from DAKCommand import Command
 from subcommands.samgob import SamgobSubCommand
 from subcommands.save import SaveSubCommand
+from subcommands.matlib import PlotSubCommand
 
 style = Style.from_dict({
     # User input (default text).
@@ -50,17 +51,15 @@ def _(event):
 dice_parser = DiceSetParser()
 commandTree : Command = Command("root")
 commandTree.add_sub_command(SamgobSubCommand("samgob",dice_parser=dice_parser),default=True)
+commandTree.add_sub_command(PlotSubCommand("plot",dice_parser=dice_parser))
 commandTree.add_sub_command(SaveSubCommand("memory", dice_parser=dice_parser))
 
 
 #add an exit command to leave the tree
-@commandTree.function_decorator()
+@commandTree.function_command()
 def exit():
     print("goodbye!")
     sys.exit(1)
-
-
-
 
 try:
     while True:
