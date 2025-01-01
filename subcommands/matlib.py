@@ -15,17 +15,17 @@ class PlotSubCommand(Command):
         #store a referene to the langauge parser
         self.dice_parser = dice_parser
 
-        @self.function_command(default=True)
-        def heatmap(matrix : str):
+        @self.function_command(default=True,raw=True)
+        def heatmap(matrix : [str]):
             """
             takes a matrix string and parses out the samgob expression, storing the result in the tmp variable,
             then graphs and displays that variable
             """
             try:
-                self.dice_parser.compile_langauge(ControlFlowIterator(iter(["tmp="+matrix])))
+                self.dice_parser.compile_langauge(ControlFlowIterator(iter(["tmp="+matrix[0]])))
                 
                 if "tmp" in self.dice_parser.variable_map and isinstance(self.dice_parser.variable_map["tmp"],Matrix):
-                    self.display_matrix(self.dice_parser.variable_map["tmp"],matrix)
+                    self.display_matrix(self.dice_parser.variable_map["tmp"],matrix[0])
 
             except ParseError:
                 print("unable to parse matrix to graph, try again")

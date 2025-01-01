@@ -10,16 +10,17 @@ class SamgobSubCommand(Command):
 
         self.dice_parser = dice_parser
 
-        @self.function_command(default=True)
-        def parse(*args : str):
-            #try:
+        @self.function_command(raw=True,default=True)
+        def parse(args : [str]):
+            try:
+                
                 ret_val = self.dice_parser.compile_langauge(ControlFlowIterator(
                     iter(args)
                     )
                 )
                 print(ret_val)
-            #except ParseError:
-            #    print(f"invalid syntax detected with query {args}")
+            except ParseError:
+                print(f"invalid syntax detected with query {args}")
             
         
         @self.function_command()

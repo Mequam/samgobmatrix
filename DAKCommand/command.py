@@ -7,7 +7,7 @@ class Command:
     
     can contain subcommands for more complex tree based processing
     """
-    def __init__(self,name : str,**kwargs):
+    def __init__(self,name : str,*,raw=False,**kwargs):
         #the name of this command, and also the command used to run it from cli
         self.name : str = name
 
@@ -16,6 +16,10 @@ class Command:
 
         #really boring command that does nothing
         self.default_cmd = None
+
+        #if true, we pass arguments strait to the runner function WITHOUT going through the argument parser first
+        #all arguments passed this way are string arrays
+        self.raw = raw
 
         #this is the function that is called from parse to actually run operations and make
         #do work
@@ -87,7 +91,10 @@ class Command:
     def parse(self,args : [str])->None:
         if self.is_sub_command():
             #actually do work
-            self.call_from_namespace(self.runner, self.parser.parse_args(args))
+            if self.raw:
+                self.runner(args)
+            else:
+                self.call_from_namespace(self.runner, self.parser.parse_args(args))
 
             return
 
@@ -111,13 +118,13 @@ class Command:
         if default:
             self.default_cmd = sub_command
 
-    def function_command(self,*,name : str = None, default : bool = False,dashList : bool = False):
+    def function_command(self,*,name : str = None, default : bool = False,dashList : bool = False,**kwargs):
         """
         decorator used to create and add a command as a sub command to this one
         """
 
         def decorator(f):
-            self.add_sub_command(Command.from_function(f),
+            self.add_sub_command(Command.from_function(f,**kwargs),
                                  default=default)
 
             return f
@@ -132,6 +139,11 @@ class Command:
         spec = inspect.getfullargspec(f)
 
         ret_val = Command(name = name if name else f.__name__ , **kwargs)
+        ret_val.runner = f
+         
+        if ret_val.raw:
+            #no need to set the parser if we are raw
+            return ret_val
 
 
         default_arguments = []
@@ -176,8 +188,6 @@ class Command:
                                         nargs="*"
                                         )
 
-
-        ret_val.runner = f
         return ret_val
 
 if __name__ == '__main__':
