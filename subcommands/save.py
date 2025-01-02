@@ -20,17 +20,22 @@ class SaveSubCommand(Command):
             append one or more variables to a file the outnames list determines what the variables will be saved
             as in the away file, from left to right aligned with the variable list
             """
-            variables = None
-            with open(filepath,'r') as readFile:
-                variables = self.read_queries(readFile)
-            
-            if not variables:
-                print("unable to detect query file!")
+            variables = {}
+
+            try:
+                with open(filepath,'r') as readFile:
+                    variables = self.read_queries(readFile)
+            except FileNotFoundError:
+                print(f"creating new save file at {filepath}")
 
             #padd outnames for convinent processing
             varnames = (varname,) + variablelist
             if not outnames: outnames = []
             outnames += [None] * (len(variables) - len(outnames))
+
+            #make sure we can still zip together an empty variable
+            if len(outnames) == 0:
+                outnames = [None]
 
             for variable_name,outname in zip(varnames,outnames):
                 print(variable_name)
