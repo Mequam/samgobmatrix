@@ -17,7 +17,8 @@ class SaveSubCommand(Command):
         @self.function_command()
         def save(varname : str,*variablelist : str,outnames : list,filepath = "saved_variables.txt"):
             """
-            append one or more variables to a file
+            append one or more variables to a file the outnames list determines what the variables will be saved
+            as in the away file, from left to right aligned with the variable list
             """
             variables = None
             with open(filepath,'r') as readFile:
@@ -26,17 +27,26 @@ class SaveSubCommand(Command):
             if not variables:
                 print("unable to detect query file!")
 
-            for variable_name in (varname,) + variablelist:
+            #padd outnames for convinent processing
+            varnames = (varname,) + variablelist
+            if not outnames: outnames = []
+            outnames += [None] * (len(variables) - len(outnames))
+
+            for variable_name,outname in zip(varnames,outnames):
                 print(variable_name)
                 encoding = self.encode_variable(variable_name)
                 if encoding:
-                    variables[variable_name] = encoding
+                    variables[outname if outname else variable_name] = encoding
 
             with open(filepath,'w') as writeFile:
                 self.store_queries(variables, writeFile)
 
         @self.function_command()
         def load(varname : str = '*',*,filepath = 'saved_variables.txt'):
+            """
+            loads a specific variable into the system, if no variables are specified loads
+            EVERY variable into the system
+            """
             try:
                 with open(filepath,'r') as readFile:
                     if varname == '*': #load all queries
@@ -50,9 +60,12 @@ class SaveSubCommand(Command):
         
         @self.function_command(default=True)
         def show(*,filepath = "saved_variables.txt"):
+            """displays the quries stored in the given file"""
             try:
                 with open(filepath,'r') as readFile:
-                    print(self.read_queries(readFile))
+                    queries = self.read_queries(readFile)
+                    for var in queries:
+                        print(f'{var}={queries[var]}',end="")
             except FileNotFoundError:
                 #inteanded behavior is to do nothing
                 pass

@@ -49,6 +49,8 @@ def _(event):
 
 
 dice_parser = DiceSetParser()
+dice_parser.numpy_matrix_formating = True
+
 commandTree : Command = Command("root")
 commandTree.add_sub_command(SamgobSubCommand("samgob",dice_parser=dice_parser),default=True)
 commandTree.add_sub_command(PlotSubCommand("plot",dice_parser=dice_parser))
@@ -61,11 +63,25 @@ def exit():
     print("goodbye!")
     sys.exit(1)
 
+def generate_toolbar()->str:
+    buffer = ""
+    for v in dice_parser.variable_map:
+        if isinstance(dice_parser.variable_map[v],Matrix):
+            buffer += f'{v}={dice_parser.variable_map[v].samgob_string()} '
+        else:
+            buffer += f'{v}={dice_parser.variable_map[v]} '
+
+    ret_val = buffer[:100]
+    if len(ret_val) != len(buffer):
+        ret_val += "..."
+
+    return ret_val
+
 try:
     while True:
         user_input = prompt_session.prompt(prompt,
                                        style=style,
-                                       bottom_toolbar="testing123",
+                                       bottom_toolbar=generate_toolbar,
                                        placeholder=placeholder)
         
         #gray out user inputs before computing outputs

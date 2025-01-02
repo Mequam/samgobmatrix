@@ -20,7 +20,7 @@ class SamgobSubCommand(Command):
                 )
                 print(ret_val)
             except ParseError:
-                print(f"invalid syntax detected with query {args}")
+                print(f"unrecognized query or command, try help to get more information")
             
         
         @self.function_command()
@@ -28,5 +28,5 @@ class SamgobSubCommand(Command):
             print("variables")
             print(len("variables")*'-')
             for key in self.dice_parser.variable_map:
-                print((key,str(self.dice_parser.variable_map[key])))
+                print(f"{key}:{str(self.dice_parser.variable_map[key])}")
             print(len("variables")*'-')
