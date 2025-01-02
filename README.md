@@ -256,8 +256,10 @@ using this format the identity matrix could be represented as follows
 ```
 equates to
 
+```
 1 0
 0 1
+```
 
 as another example the rotation matrix by 90 degrees could be represented as
 
@@ -265,8 +267,10 @@ as another example the rotation matrix by 90 degrees could be represented as
 0,-1:1,0
 ```
 
+```
 0 -1
 1  0
+```
 
 the numbers stored inside of the matricies are themselfs fully parsable samgob arithmatic,
 so you can throw dice queries to your hearts content inside of the matricies to generate
