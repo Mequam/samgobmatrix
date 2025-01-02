@@ -1,3 +1,4 @@
+#!/bin/python
 from DAKMatrix import Matrix
 from math import pi
 from samgob import DiceSetParser
@@ -13,6 +14,7 @@ from subcommands.samgob import SamgobSubCommand
 from subcommands.save import SaveSubCommand
 from subcommands.matlib import PlotSubCommand
 
+# set up styles for fancy prompts
 style = Style.from_dict({
     # User input (default text).
     '':          '#ff6600',
@@ -36,21 +38,14 @@ prompt = [("class:prompt",'()> ')]
 placeholder = [('class:placeholder','command or query')]
 
 
-bindings = KeyBindings()
 prompt_session = PromptSession()
 
-@bindings.add('up')
-def _(event):
-    print("you pressed the up key")
-
-@bindings.add('down')
-def _(event):
-    print("you pressed the down key")
-
-
+#set up the dice parser that is used throughout the program
 dice_parser = DiceSetParser()
 dice_parser.numpy_matrix_formating = True
 
+
+#construct the command tree from sub commands
 commandTree : Command = Command("root")
 commandTree.add_sub_command(SamgobSubCommand("samgob",dice_parser=dice_parser),default=True)
 commandTree.add_sub_command(PlotSubCommand("plot",dice_parser=dice_parser))
@@ -64,6 +59,11 @@ def exit():
     sys.exit(1)
 
 def generate_toolbar()->str:
+    """
+    this function is used to generate the toolbar with prompt toolkit
+    that you see in the application, it indicates set variables for
+    the convinence of the user
+    """
     buffer = ""
     for v in dice_parser.variable_map:
         if isinstance(dice_parser.variable_map[v],Matrix):
@@ -77,6 +77,7 @@ def generate_toolbar()->str:
 
     return ret_val
 
+# main loop of the program
 try:
     while True:
         user_input = prompt_session.prompt(prompt,
@@ -96,16 +97,5 @@ try:
         commandTree.parse(user_input.split(" "))
 
 
-except KeyboardInterrupt:
+except KeyboardInterrupt: #graceful exit
     exit()
-
-
-
-#parser : DiceSetParser = DiceSetParser(numpy_matrix_formating=True)
-#
-#while True:
-#    ui = input('> ')
-#    result = parser.compile_langauge(ControlFlowIterator(
-#        iter(ui.split(" "))
-#        ))
-#    print(result)
